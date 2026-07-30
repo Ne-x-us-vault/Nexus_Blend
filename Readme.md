@@ -87,11 +87,11 @@ npm run tauri dev
 
 ## 🧩 Roadmap
 
-- [ ] Basic FPP player controller in Godot
-- [ ] Placeholder-to-mesh hot-swap logic
-- [ ] Area3D task validation (pick up / place object)
-- [ ] React + Tauri companion window shell
-- [ ] WebSocket bridge between Godot and companion app
+- [x] Basic FPP player controller in Godot
+- [x] Placeholder-to-mesh hot-swap logic
+- [.] Area3D task validation (pick up / place object)
+- [x] React + Tauri companion window shell
+- [x] WebSocket bridge between Godot and companion app
 - [ ] Chatbot integration for guidance and review
 - [ ] Local progress persistence (SQLite/JSON)
 - [ ] Multi-level progression system
