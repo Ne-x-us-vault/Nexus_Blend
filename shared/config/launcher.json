@@ -1,0 +1,15 @@
+{
+  "level": {
+    "id": "office",
+    "name": "Office"
+  },
+  "servers": {
+    "godot_ws": "127.0.0.1:9876",
+    "blender_bridge": "127.0.0.1:9877"
+  },
+  "model": {
+    "name": "submission.glb",
+    "sharedDir": "shared/exports",
+    "godotDir": "godot_runtime/officegame/exports"
+  }
+}

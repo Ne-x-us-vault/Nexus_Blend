@@ -1,72 +1,89 @@
-import { useState, useCallback } from "react";
-import { invoke } from "@tauri-apps/api/core";
+import { useCallback, useEffect, useState } from "react";
+import ActivityPanel from "./components/ActivityPanel";
+import StartButton from "./components/StartButton";
+import StatusCard from "./components/StatusCard";
+import SyncButton from "./components/SyncButton";
+import { useLauncherEvents } from "./hooks/useLauncherEvents";
 import "./App.css";
 
 function App() {
-  const [lastSync, setLastSync] = useState<string>("Never");
-  const [syncing, setSyncing] = useState(false);
+  const { status, sync, activities, config, startLearning, syncToGame } = useLauncherEvents();
+  const [starting, setStarting] = useState(false);
+  const [showSynced, setShowSynced] = useState(false);
 
-  const launchGame = useCallback(async () => {
-    try {
-      await invoke("launch_game");
-    } catch (e) {
-      console.error("Failed to launch game:", e);
+  const bothRunning = status.blender && status.game;
+
+  useEffect(() => {
+    if (bothRunning) {
+      setStarting(false);
     }
-  }, []);
+  }, [bothRunning]);
 
-  const launchBlender = useCallback(async () => {
-    try {
-      await invoke("launch_blender");
-    } catch (e) {
-      console.error("Failed to launch Blender:", e);
+  useEffect(() => {
+    if (sync.state === "synced") {
+      setShowSynced(true);
+      const timer = setTimeout(() => setShowSynced(false), 3500);
+      return () => clearTimeout(timer);
     }
-  }, []);
+  }, [sync.state]);
 
-  const syncToGame = useCallback(async () => {
-    setSyncing(true);
+  const handleStart = useCallback(async () => {
+    if (starting || bothRunning) return;
+    setStarting(true);
     try {
-      const result = await invoke<string>("sync_model");
-      setLastSync(new Date().toLocaleTimeString());
-      console.log(result);
+      await startLearning();
+    } catch (e) {
+      console.error("Failed to start learning session:", e);
+      setStarting(false);
+    }
+  }, [starting, bothRunning, startLearning]);
+
+  const handleSync = useCallback(async () => {
+    if (sync.state === "syncing") return;
+    try {
+      await syncToGame();
     } catch (e) {
       console.error("Sync failed:", e);
-    } finally {
-      setSyncing(false);
     }
-  }, []);
+  }, [sync.state, syncToGame]);
+
+  const levelName = config?.level.name ?? "Office";
+  const syncBusy = sync.state === "syncing";
+  const syncError = sync.state === "error" ? sync.message : null;
 
   return (
     <div className="app">
       <header className="header">
-        <h1 className="title">NexusBlend</h1>
-        <p className="subtitle">Current Level: Office</p>
+        <div className="logo-mark">
+          <div className="logo-cube" />
+          <span>NexusBlend</span>
+        </div>
+        <p className="level-badge">
+          Current Level · <span>{levelName}</span>
+        </p>
       </header>
 
-      <section className="status-section">
-        <div className="status-row">
-          <span className="status-dot red" />
-          <span className="status-label">Game Closed</span>
-        </div>
-        <div className="status-row">
-          <span className="status-dot red" />
-          <span className="status-label">Blender Closed</span>
-        </div>
-      </section>
+      <StatusCard status={status} sync={sync} />
 
-      <section className="actions">
-        <button className="btn" onClick={launchBlender}>
-          Launch Blender
-        </button>
-        <button className="btn" onClick={launchGame}>
-          Launch Game
-        </button>
-        <button className="btn btn-sync" onClick={syncToGame} disabled={syncing}>
-          {syncing ? "Syncing..." : "Sync To Game"}
-        </button>
-      </section>
+      <div className="actions">
+        <StartButton starting={starting} sessionActive={bothRunning} onStart={handleStart} />
+        {bothRunning && <SyncButton busy={syncBusy} exporting={sync.phase === "exporting"} onSync={handleSync} />}
+        {showSynced && (
+          <div className="synced-banner" role="status">
+            ✓ Synced Successfully
+          </div>
+        )}
+        {syncError && (
+          <div className="error-banner" role="alert">
+            {syncError}
+          </div>
+        )}
+      </div>
+
+      <ActivityPanel activities={activities} />
 
       <footer className="footer">
-        <span className="sync-label">Last Sync: {lastSync}</span>
+        <span className="footer-hint">Blender creates models · Godot plays them · NexusBlend connects</span>
       </footer>
     </div>
   );

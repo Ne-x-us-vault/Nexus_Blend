@@ -14,10 +14,13 @@
     "windows": [
       {
         "title": "NexusBlend",
-        "width": 480,
-        "height": 620,
-        "resizable": false,
-        "center": true
+        "width": 520,
+        "height": 760,
+        "minWidth": 440,
+        "minHeight": 620,
+        "resizable": true,
+        "center": true,
+        "alwaysOnTop": true
       }
     ],
     "security": {

@@ -1,16 +1,18 @@
 extends Node3D
 
-const MODEL_PATH = "res://exports/submission.glb"
 const WS_URL = "ws://127.0.0.1:9876"
+const DEFAULT_MODEL = "submission.glb"
 
+var model_path = "res://exports/" + DEFAULT_MODEL
 var current_model = null
 var ws = WebSocketPeer.new()
 var ws_connected = false
 
 
 func _ready():
-	print("========== SkillForge Runtime ==========")
+	print("========== NexusBlend Runtime ==========")
 	print("Runtime Started")
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, true)
 	load_submission()
 	connect_to_launcher()
 
@@ -48,32 +50,38 @@ func poll_websocket():
 			ws_connected = false
 			print("WebSocket: disconnected from launcher")
 
+func send_to_launcher(payload: Dictionary):
+	if ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
+		ws.put_packet(JSON.stringify(payload).to_utf8_buffer())
+
 func handle_message(msg: String):
 	var json = JSON.parse_string(msg)
 	if json is Dictionary and json.has("type"):
 		match json["type"]:
 			"SYNC_MODEL":
 				print("WebSocket: received SYNC_MODEL")
+				var file = json.get("file", DEFAULT_MODEL)
+				model_path = "res://exports/" + file
 				reload_submission()
 
 
 # ---------------------------------------------------
 # Loads the user's current Blender submission
 # ---------------------------------------------------
-func load_submission():
+func load_submission() -> bool:
 
-	if !FileAccess.file_exists(MODEL_PATH):
-		print("No submission.glb found.")
-		return
+	if !FileAccess.file_exists(model_path):
+		print("No " + model_path + " found.")
+		return false
 
 	var gltf_doc = GLTFDocument.new()
 	var gltf_state = GLTFState.new()
 
-	var error = gltf_doc.append_from_file(MODEL_PATH, gltf_state)
+	var error = gltf_doc.append_from_file(model_path, gltf_state)
 
 	if error != OK:
 		print("Failed to load submission.")
-		return
+		return false
 
 	current_model = gltf_doc.generate_scene(gltf_state)
 
@@ -86,6 +94,7 @@ func load_submission():
 	print("--------------------------------")
 	print("Submission Loaded Successfully")
 	print("--------------------------------")
+	return true
 
 
 # ---------------------------------------------------
@@ -102,7 +111,8 @@ func clear_submission():
 
 
 # ---------------------------------------------------
-# Reloads the latest exported model
+# Reloads the latest exported model and reports back
+# to the launcher so the UI can show "Synced".
 # ---------------------------------------------------
 func reload_submission():
 
@@ -110,7 +120,13 @@ func reload_submission():
 
 	clear_submission()
 
-	load_submission()
+	var ok = load_submission()
+
+	send_to_launcher({
+		"type": "MODEL_LOADED",
+		"ok": ok,
+		"message": "" if ok else "Failed to load model: " + model_path,
+	})
 
 
 # ---------------------------------------------------
