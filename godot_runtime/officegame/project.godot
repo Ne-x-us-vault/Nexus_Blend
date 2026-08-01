@@ -12,8 +12,13 @@ config_version=5
 
 config/name="OfficeGame"
 run/main_scene="uid://dto7g3317i8bs"
-config/features=PackedStringArray("4.4", "Forward Plus")
+config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
 
 [input]
 

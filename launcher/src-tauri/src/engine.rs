@@ -63,7 +63,13 @@ pub fn launch_game(state: &AppState, app: &AppHandle) -> Result<String, String> 
 
     emit_activity(app, "Launching Game...", "info");
     let mut command = Command::new(&exe);
-    command.arg("--path").arg(&canonical);
+    command
+        .arg("--path")
+        .arg(&canonical)
+        // Forward+ (Vulkan/NVK) is unstable on this GPU; force the
+        // Compatibility renderer so the game never crashes on startup.
+        .arg("--rendering-method")
+        .arg("gl_compatibility");
     let child = command
         .spawn()
         .map_err(|e| format!("Failed to launch Game: {}", e))?;

@@ -1,16 +1,19 @@
 .btn {
+  position: relative;
   width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 10px;
   padding: 15px 20px;
-  border-radius: 12px;
+  border-radius: 14px;
   border: 1px solid transparent;
   font-size: 15px;
   font-weight: 700;
   font-family: inherit;
+  letter-spacing: 0.2px;
   cursor: pointer;
+  overflow: hidden;
   transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease,
     border-color 0.12s ease, opacity 0.12s ease;
   user-select: none;
@@ -20,15 +23,38 @@
   cursor: not-allowed;
 }
 
+.btn:focus-visible {
+  outline: 2px solid rgba(165, 180, 252, 0.7);
+  outline-offset: 2px;
+}
+
 .btn-primary {
-  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+  background: linear-gradient(135deg, #6366f1 0%, #7c3aed 60%, #8b5cf6 100%);
   color: #ffffff;
-  box-shadow: 0 8px 24px rgba(99, 102, 241, 0.28);
+  box-shadow:
+    0 10px 26px rgba(99, 102, 241, 0.32),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.btn-primary::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.28) 50%, transparent 70%);
+  transform: translateX(-130%);
+  transition: transform 0.5s ease;
+  pointer-events: none;
+}
+
+.btn-primary:not(:disabled):hover::after {
+  transform: translateX(130%);
 }
 
 .btn-primary:not(:disabled):hover {
   transform: translateY(-1px);
-  box-shadow: 0 10px 28px rgba(99, 102, 241, 0.4);
+  box-shadow:
+    0 12px 30px rgba(99, 102, 241, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
 }
 
 .btn-primary:not(:disabled):active {
@@ -40,25 +66,35 @@
 }
 
 .btn-primary.btn-success:disabled {
-  opacity: 0.85;
+  opacity: 0.9;
   background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.25);
+  box-shadow:
+    0 10px 26px rgba(16, 185, 129, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 
 .btn-sync {
   background: rgba(16, 185, 129, 0.12);
   border-color: rgba(16, 185, 129, 0.35);
   color: #34d399;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .btn-sync:not(:disabled):hover {
   background: rgba(16, 185, 129, 0.2);
   border-color: rgba(16, 185, 129, 0.55);
+  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.14);
   transform: translateY(-1px);
 }
 
 .btn-sync:disabled {
   opacity: 0.6;
+}
+
+.btn-icon {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
 }
 
 .btn-spinner {

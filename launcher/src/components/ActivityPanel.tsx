@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ActivityEntry, ActivityKind } from "../types";
 import "./ActivityPanel.css";
 
@@ -13,11 +14,65 @@ function formatTime(ts: number): string {
   });
 }
 
-const KIND_ICON: Record<ActivityKind, string> = {
-  info: "•",
-  success: "✓",
-  error: "✕",
-  sync: "↻",
+const KIND_ICON: Record<ActivityKind, ReactNode> = {
+  info: (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M12 16v-4" />
+      <path d="M12 8h.01" />
+    </svg>
+  ),
+  success: (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.4"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M20 6 9 17l-5-5" />
+    </svg>
+  ),
+  error: (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M18 6 6 18" />
+      <path d="m6 6 12 12" />
+    </svg>
+  ),
+  sync: (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+      <path d="M21 3v5h-5" />
+      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+      <path d="M3 21v-5h5" />
+    </svg>
+  ),
 };
 
 export default function ActivityPanel({ activities }: ActivityPanelProps) {
@@ -27,7 +82,10 @@ export default function ActivityPanel({ activities }: ActivityPanelProps) {
     <section className="card activity-card" aria-label="Activity">
       <header className="activity-header">
         <h2 className="activity-title">Activity</h2>
-        {entries.length > 0 && <span className="activity-count">{entries.length}</span>}
+        <div className="activity-meta">
+          {entries.length > 0 && <span className="live-dot" aria-hidden="true" />}
+          {entries.length > 0 && <span className="activity-count">{entries.length}</span>}
+        </div>
       </header>
       {entries.length === 0 ? (
         <p className="activity-empty">No activity yet.</p>
