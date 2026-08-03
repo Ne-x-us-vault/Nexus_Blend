@@ -24,6 +24,14 @@ export function useLauncherEvents() {
   useEffect(() => {
     let disposed = false;
     let unlisten: Array<() => void> = [];
+    let resetTimer: ReturnType<typeof setTimeout> | null = null;
+
+    const clearResetTimer = () => {
+      if (resetTimer) {
+        clearTimeout(resetTimer);
+        resetTimer = null;
+      }
+    };
 
     (async () => {
       try {
@@ -42,7 +50,13 @@ export function useLauncherEvents() {
 
       unlisten = [
         await listen<EngineStatus>("status", (event) => setStatus(event.payload)),
-        await listen<SyncEvent>("sync", (event) => setSync(event.payload)),
+        await listen<SyncEvent>("sync", (event) => {
+          clearResetTimer();
+          setSync(event.payload);
+          if (event.payload.state === "synced") {
+            resetTimer = setTimeout(() => setSync({ state: "idle" }), 1000);
+          }
+        }),
         await listen<ActivityEntry>("activity", (event) =>
           setActivities((prev) => [...prev, event.payload].slice(-200)),
         ),
@@ -51,6 +65,7 @@ export function useLauncherEvents() {
 
     return () => {
       disposed = true;
+      clearResetTimer();
       unlisten.forEach((dispose) => dispose());
     };
   }, []);

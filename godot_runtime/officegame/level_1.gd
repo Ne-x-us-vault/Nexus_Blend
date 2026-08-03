@@ -52,7 +52,7 @@ func poll_websocket():
 
 func send_to_launcher(payload: Dictionary):
 	if ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
-		ws.put_packet(JSON.stringify(payload).to_utf8_buffer())
+		ws.send_text(JSON.stringify(payload))
 
 func handle_message(msg: String):
 	var json = JSON.parse_string(msg)
