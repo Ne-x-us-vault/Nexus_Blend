@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import type { ActivityEntry, EngineStatus, LauncherConfig, SyncEvent } from "../types";
@@ -11,6 +11,9 @@ const DEFAULT_STATUS: EngineStatus = {
 
 const DEFAULT_SYNC: SyncEvent = { state: "idle" };
 
+const SYNC_SETTLED_DELAY = 1600;
+const SYNC_WATCHDOG_MS = 90_000;
+
 /**
  * Subscribes to the launcher's live events and seeds initial state from the
  * Rust backend. This is the single source of truth for the entire UI.
@@ -21,17 +24,49 @@ export function useLauncherEvents() {
   const [activities, setActivities] = useState<ActivityEntry[]>([]);
   const [config, setConfig] = useState<LauncherConfig | null>(null);
 
+  const syncRef = useRef<SyncEvent>(DEFAULT_SYNC);
+  const settledTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const watchdogTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  syncRef.current = sync;
+
+  const clearTimers = useCallback(() => {
+    if (settledTimer.current) {
+      clearTimeout(settledTimer.current);
+      settledTimer.current = null;
+    }
+    if (watchdogTimer.current) {
+      clearTimeout(watchdogTimer.current);
+      watchdogTimer.current = null;
+    }
+  }, []);
+
+  const returnToIdle = useCallback(() => {
+    settledTimer.current = setTimeout(() => {
+      setSync({ state: "idle" });
+      settledTimer.current = null;
+    }, SYNC_SETTLED_DELAY);
+  }, []);
+
+  const applySyncEvent = useCallback(
+    (payload: SyncEvent) => {
+      clearTimers();
+      setSync(payload);
+      if (payload.state === "syncing") {
+        watchdogTimer.current = setTimeout(() => {
+          setSync({ state: "idle" });
+          watchdogTimer.current = null;
+        }, SYNC_WATCHDOG_MS);
+      } else if (payload.state === "synced" || payload.state === "error") {
+        returnToIdle();
+      }
+    },
+    [clearTimers, returnToIdle],
+  );
+
   useEffect(() => {
     let disposed = false;
     let unlisten: Array<() => void> = [];
-    let resetTimer: ReturnType<typeof setTimeout> | null = null;
-
-    const clearResetTimer = () => {
-      if (resetTimer) {
-        clearTimeout(resetTimer);
-        resetTimer = null;
-      }
-    };
 
     (async () => {
       try {
@@ -50,33 +85,50 @@ export function useLauncherEvents() {
 
       unlisten = [
         await listen<EngineStatus>("status", (event) => setStatus(event.payload)),
-        await listen<SyncEvent>("sync", (event) => {
-          clearResetTimer();
-          setSync(event.payload);
-          if (event.payload.state === "synced") {
-            resetTimer = setTimeout(() => setSync({ state: "idle" }), 1000);
+        await listen<SyncEvent>("sync", (event) => applySyncEvent(event.payload)),
+        await listen<ActivityEntry>("activity", (event) => {
+          setActivities((prev) => [...prev, event.payload].slice(-200));
+          const current = syncRef.current;
+          if (current.state === "syncing" && event.payload.kind === "success") {
+            if (/model synced/i.test(event.payload.message)) {
+              applySyncEvent({ state: "synced", message: "Synced Successfully" });
+            }
           }
         }),
-        await listen<ActivityEntry>("activity", (event) =>
-          setActivities((prev) => [...prev, event.payload].slice(-200)),
-        ),
       ];
     })();
 
     return () => {
       disposed = true;
-      clearResetTimer();
+      clearTimers();
       unlisten.forEach((dispose) => dispose());
     };
-  }, []);
+  }, [applySyncEvent, clearTimers]);
 
   const startLearning = useCallback(async () => {
     await invoke("start_learning");
+  }, []);
+
+  const launchBlender = useCallback(async () => {
+    await invoke("launch_blender");
+  }, []);
+
+  const launchGame = useCallback(async () => {
+    await invoke("launch_game");
   }, []);
 
   const syncToGame = useCallback(async () => {
     await invoke("sync_model");
   }, []);
 
-  return { status, sync, activities, config, startLearning, syncToGame };
+  return {
+    status,
+    sync,
+    activities,
+    config,
+    startLearning,
+    launchBlender,
+    launchGame,
+    syncToGame,
+  };
 }

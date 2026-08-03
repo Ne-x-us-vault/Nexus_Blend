@@ -33,3 +33,27 @@ export interface LauncherConfig {
     godotDir: string;
   };
 }
+
+export type Difficulty = "Beginner" | "Intermediate" | "Advanced";
+
+export interface Level {
+  id: string;
+  number: number;
+  location: string;
+  title: string;
+  difficulty: Difficulty;
+  story: string;
+  requirements: string[];
+  objectives: string[];
+  constraints: string[];
+  estimatedMinutes: number;
+  unlocked: boolean;
+  completion: number;
+}
+
+export type RouteName = "home" | "levels" | "level" | "workspace" | "progress" | "settings";
+
+export interface Route {
+  name: RouteName;
+  levelId?: string;
+}
