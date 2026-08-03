@@ -12,8 +12,16 @@ var ws_connected = false
 func _ready():
 	print("========== NexusBlend Runtime ==========")
 	print("Runtime Started")
+
+	# Keep the game floating above other windows
 	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_ALWAYS_ON_TOP, true)
-	load_submission()
+
+	# IMPORTANT:
+	# Start every level with an empty environment.
+	# The user's model should only appear after Sync To Game.
+	clear_submission()
+
+	# Connect to the NexusBlend launcher
 	connect_to_launcher()
 
 
@@ -26,52 +34,71 @@ func _process(delta):
 # ---------------------------------------------------
 func connect_to_launcher():
 	var err = ws.connect_to_url(WS_URL)
+
 	if err != OK:
 		print("WebSocket: failed to connect to launcher")
 	else:
 		print("WebSocket: connecting to launcher...")
 
+
 func poll_websocket():
+
 	ws.poll()
+
 	var state = ws.get_ready_state()
 
 	if state == WebSocketPeer.STATE_OPEN:
-		if not ws_connected:
+
+		if !ws_connected:
 			ws_connected = true
 			print("WebSocket: connected to launcher")
 
 		while ws.get_available_packet_count() > 0:
+
 			var packet = ws.get_packet()
 			var msg = packet.get_string_from_utf8()
+
 			handle_message(msg)
 
 	elif state == WebSocketPeer.STATE_CLOSED:
+
 		if ws_connected:
 			ws_connected = false
 			print("WebSocket: disconnected from launcher")
 
+
 func send_to_launcher(payload: Dictionary):
+
 	if ws.get_ready_state() == WebSocketPeer.STATE_OPEN:
 		ws.send_text(JSON.stringify(payload))
 
+
 func handle_message(msg: String):
+
 	var json = JSON.parse_string(msg)
+
 	if json is Dictionary and json.has("type"):
+
 		match json["type"]:
+
 			"SYNC_MODEL":
+
 				print("WebSocket: received SYNC_MODEL")
+
 				var file = json.get("file", DEFAULT_MODEL)
+
 				model_path = "res://exports/" + file
+
 				reload_submission()
 
 
 # ---------------------------------------------------
-# Loads the user's current Blender submission
+# Loads the user's latest Blender submission
 # ---------------------------------------------------
 func load_submission() -> bool:
 
 	if !FileAccess.file_exists(model_path):
-		print("No " + model_path + " found.")
+		print("No model found: ", model_path)
 		return false
 
 	var gltf_doc = GLTFDocument.new()
@@ -94,6 +121,7 @@ func load_submission() -> bool:
 	print("--------------------------------")
 	print("Submission Loaded Successfully")
 	print("--------------------------------")
+
 	return true
 
 
@@ -111,8 +139,7 @@ func clear_submission():
 
 
 # ---------------------------------------------------
-# Reloads the latest exported model and reports back
-# to the launcher so the UI can show "Synced".
+# Reloads the latest synced model
 # ---------------------------------------------------
 func reload_submission():
 
@@ -125,7 +152,7 @@ func reload_submission():
 	send_to_launcher({
 		"type": "MODEL_LOADED",
 		"ok": ok,
-		"message": "" if ok else "Failed to load model: " + model_path,
+		"message": "" if ok else "Failed to load model: " + model_path
 	})
 
 
