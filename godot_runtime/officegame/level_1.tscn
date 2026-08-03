@@ -1,13 +1,24 @@
-[gd_scene load_steps=5 format=3 uid="uid://dto7g3317i8bs"]
+[gd_scene load_steps=8 format=3 uid="uid://dto7g3317i8bs"]
 
 [ext_resource type="Script" uid="uid://dj7khnewbdf4v" path="res://body.gd" id="1_3hls8"]
 [ext_resource type="Script" uid="uid://dq4fpygwbsyak" path="res://level_1.gd" id="1_hbghi"]
 
 [sub_resource type="Environment" id="Environment_ilcil"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hbghi"]
+albedo_color = Color(0.541176, 0.419608, 0.309804, 1)
+roughness = 0.65
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hn12h"]
+albedo_color = Color(0.898039, 0.886275, 0.858824, 1)
+
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_hbghi"]
 radius = 0.4
 height = 1.8
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ihfcg"]
+albedo_color = Color(0.972549, 0.972549, 0.972549, 1)
+roughness = 0.9
 
 [node name="Level 1" type="Node3D"]
 script = ExtResource("1_hbghi")
@@ -21,27 +32,32 @@ transform = Transform3D(1, 0, 0, 0, 0.00897093, 0.99996, 0, -0.99996, 0.00897093
 [node name="floor" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 use_collision = true
-size = Vector3(10, 0.2, 10)
+size = Vector3(20, 0.2, 15)
+material = SubResource("StandardMaterial3D_hbghi")
 
 [node name="Wall_North" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, -5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, -7.5)
 use_collision = true
-size = Vector3(10, 3, 0.2)
+size = Vector3(20, 5, 0.2)
+material = SubResource("StandardMaterial3D_hn12h")
 
 [node name="Wall_South" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 7.5)
 use_collision = true
-size = Vector3(10, 3, 0.2)
+size = Vector3(20, 5, 0.2)
+material = SubResource("StandardMaterial3D_hn12h")
 
 [node name="Wall_East" type="CSGBox3D" parent="."]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 5, 1.5, 0)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 10, 2.5, 0)
 use_collision = true
-size = Vector3(10, 3, 0.2)
+size = Vector3(15, 5, 0.2)
+material = SubResource("StandardMaterial3D_hn12h")
 
 [node name="Wall_West" type="CSGBox3D" parent="."]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -5, 1.5, 0)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -10, 2.5, 0)
 use_collision = true
-size = Vector3(10, 3, 0.2)
+size = Vector3(15, 5, 0.2)
+material = SubResource("StandardMaterial3D_hn12h")
 
 [node name="Player" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
@@ -62,3 +78,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -0.00571847)
 autostart = true
 
 [node name="ImportedModel" type="Node3D" parent="."]
+
+[node name="Celing" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
+size = Vector3(20, 0.2, 15)
+material = SubResource("StandardMaterial3D_ihfcg")
