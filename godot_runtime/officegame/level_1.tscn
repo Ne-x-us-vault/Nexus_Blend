@@ -1,9 +1,77 @@
-[gd_scene load_steps=41 format=3 uid="uid://dto7g3317i8bs"]
+[gd_scene load_steps=44 format=3 uid="uid://dto7g3317i8bs"]
 
 [ext_resource type="Script" uid="uid://dj7khnewbdf4v" path="res://body.gd" id="1_3hls8"]
 [ext_resource type="Script" uid="uid://dq4fpygwbsyak" path="res://level_1.gd" id="1_hbghi"]
 
+[sub_resource type="ProceduralSkyMaterial" id="sky_mat"]
+sky_top_color = Color(0.28, 0.48, 0.8, 1)
+sky_horizon_color = Color(0.78, 0.83, 0.92, 1)
+ground_bottom_color = Color(0.36, 0.4, 0.46, 1)
+ground_horizon_color = Color(0.78, 0.83, 0.92, 1)
+sun_angle_max = 25.0
+sun_curve = 0.1
+
+[sub_resource type="Sky" id="Sky_ilcil"]
+sky_material = SubResource("sky_mat")
+
 [sub_resource type="Environment" id="Environment_ilcil"]
+background_mode = 2
+sky = SubResource("Sky_ilcil")
+ambient_light_source = 3
+ambient_light_sky_contribution = 0.8
+ambient_light_energy = 0.5
+tonemap_mode = 2
+tonemap_exposure = 0.9
+tonemap_white = 1.0
+fog_enabled = true
+fog_light_color = Color(0.82, 0.84, 0.88, 1)
+fog_light_energy = 0.6
+fog_density = 0.004
+fog_sky_affect = 0.2
+glow_enabled = true
+glow_normalized = true
+glow_intensity = 0.45
+glow_bloom = 0.08
+glow_blend_mode = 0
+glow_hdr_threshold = 1.0
+glow_hdr_scale = 2.0
+glow_levels/1 = true
+glow_levels/2 = true
+glow_levels/3 = true
+glow_levels/4 = true
+glow_levels/5 = true
+glow_levels/6 = true
+glow_levels/7 = true
+vignette_enabled = true
+
+[sub_resource type="Shader" id="floor_shader"]
+code = "shader_type spatial;
+render_mode diffuse_burley, specular_schlick_ggx;
+
+uniform vec3 tile_color : source_color = vec3(0.84, 0.82, 0.77);
+uniform vec3 grout_color : source_color = vec3(0.62, 0.6, 0.56);
+uniform float grout_width : hint_range(0.0, 0.1) = 0.02;
+uniform float tile_roughness : hint_range(0.0, 1.0) = 0.5;
+
+float hash(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+void fragment() {
+	vec2 tiles = UV * vec2(20.0, 15.0);
+	vec2 cell = floor(tiles);
+	vec2 f = fract(tiles) - 0.5;
+	float grout_line = step(max(abs(f.x), abs(f.y)), grout_width);
+	float variation = mix(0.97, 1.03, hash(cell));
+	vec3 col = mix(tile_color * variation, grout_color, grout_line);
+	ALBEDO = col;
+	ROUGHNESS = mix(tile_roughness, 0.95, grout_line);
+	METALLIC = 0.0;
+}"
+
+[sub_resource type="ShaderMaterial" id="floor_material"]
+shader = SubResource("floor_shader")
+shader_parameter/grout_width = 0.025
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hbghi"]
 albedo_color = Color(0.541176, 0.419608, 0.309804, 1)
@@ -146,7 +214,6 @@ roughness = 1
 metallic = 0
 
 [sub_resource type="StandardMaterial3D" id="glass_blue"]
-albedo_color = Color(0.7, 0.85, 0.95, 1)
 transparency = 1
 albedo_color = Color(0.7, 0.85, 0.95, 0.55)
 roughness = 0.1
@@ -171,7 +238,7 @@ metallic = 0
 albedo_color = Color(1, 0.98, 0.92, 1)
 emission_enabled = true
 emission = Color(1, 0.95, 0.85, 1)
-emission_energy_multiplier = 1.6
+emission_energy_multiplier = 2.5
 roughness = 0.4
 metallic = 0
 
@@ -197,14 +264,19 @@ script = ExtResource("1_hbghi")
 environment = SubResource("Environment_ilcil")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.00897093, 0.99996, 0, -0.99996, 0.00897093, 0.00130081, 44.066, 0)
+transform = Transform3D(0.90631, -0.29884, 0.29884, 0, 0.70711, 0.70711, -0.42262, -0.64086, 0.64086, 0, 8, 0)
+light_color = Color(1, 0.965, 0.905, 1)
+light_energy = 1.1
 shadow_enabled = true
+shadow_blur = 2.0
+directional_shadow_max_distance = 40.0
+directional_shadow_fade_start = 0.6
 
 [node name="floor" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
 use_collision = true
 size = Vector3(20, 0.2, 15)
-material = SubResource("StandardMaterial3D_hbghi")
+material = SubResource("floor_material")
 
 [node name="Wall_North" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, -7.5)
@@ -241,6 +313,8 @@ shape = SubResource("CapsuleShape3D_hbghi")
 
 [node name="Camera3D" type="Camera3D" parent="Player/Body"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6, 0)
+fov = 75.0
+near = 0.05
 
 [node name="ModelSpawn" type="Marker3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, -0.00571847)
@@ -250,7 +324,7 @@ autostart = true
 
 [node name="ImportedModel" type="Node3D" parent="."]
 
-[node name="Celing" type="CSGBox3D" parent="."]
+[node name="Ceiling" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
 size = Vector3(20, 0.2, 15)
 material = SubResource("StandardMaterial3D_ihfcg")
@@ -323,7 +397,7 @@ material = SubResource("frame_black")
 
 [node name="Chair" type="Node3D" parent="OfficeFurniture/Workstations/Desk1"]
 
-transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -7.5, 0, -4.5)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -7.5, 0, -4.5)
 
 [node name="Seat" type="CSGBox3D" parent="OfficeFurniture/Workstations/Desk1/Chair"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, 0)
@@ -444,7 +518,7 @@ material = SubResource("frame_black")
 
 [node name="Chair" type="Node3D" parent="OfficeFurniture/Workstations/Desk2"]
 
-transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -7.5, 0, -0.5)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -7.5, 0, -0.5)
 
 [node name="Seat" type="CSGBox3D" parent="OfficeFurniture/Workstations/Desk2/Chair"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, 0)
@@ -565,7 +639,7 @@ material = SubResource("frame_black")
 
 [node name="Chair" type="Node3D" parent="OfficeFurniture/Workstations/Desk3"]
 
-transform = Transform3D(6.12323e-17, 0, 1, 0, 1, 0, -1, 0, 6.12323e-17, -7.5, 0, 3.5)
+transform = Transform3D(0, 0, -1, 0, 1, 0, 1, 0, 0, -7.5, 0, 3.5)
 
 [node name="Seat" type="CSGBox3D" parent="OfficeFurniture/Workstations/Desk3/Chair"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, 0)
@@ -712,7 +786,7 @@ material = SubResource("metal_gray")
 
 [node name="Chair210" type="Node3D" parent="OfficeFurniture/MeetingTable"]
 
-transform = Transform3D(0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, 0.5, 4.61436, 0, -4.3)
+transform = Transform3D(0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, 0.5, 4.61436, 0, -4.3)
 
 [node name="Seat" type="CSGBox3D" parent="OfficeFurniture/MeetingTable/Chair210"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, 0)
@@ -771,7 +845,7 @@ material = SubResource("metal_gray")
 
 [node name="Chair330" type="Node3D" parent="OfficeFurniture/MeetingTable"]
 
-transform = Transform3D(0.5, 0, 0.866025, 0, 1, 0, -0.866025, 0, 0.5, 7.38564, 0, -4.3)
+transform = Transform3D(0.5, 0, -0.866025, 0, 1, 0, 0.866025, 0, 0.5, 7.38564, 0, -4.3)
 
 [node name="Seat" type="CSGBox3D" parent="OfficeFurniture/MeetingTable/Chair330"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.48, 0)
@@ -1389,20 +1463,105 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 4.92, -3)
 size = Vector3(2.2, 0.08, 1.1)
 material = SubResource("light_panel")
 
+[node name="Glow1" type="OmniLight3D" parent="OfficeFurniture/CeilingLights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 4.85, -3)
+light_color = Color(1, 0.97, 0.91, 1)
+light_energy = 2.2
+light_angular_distance = 0.0
+omni_range = 9.0
+omni_attenuation = 1.2
+shadow_enabled = true
+shadow_blur = 2.0
+
 [node name="Light2" type="CSGBox3D" parent="OfficeFurniture/CeilingLights"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 4.92, 3)
 size = Vector3(2.2, 0.08, 1.1)
 material = SubResource("light_panel")
+
+[node name="Glow2" type="OmniLight3D" parent="OfficeFurniture/CeilingLights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 4.85, 3)
+light_color = Color(1, 0.97, 0.91, 1)
+light_energy = 1.25
+omni_range = 7.5
+omni_attenuation = 1.2
+shadow_enabled = true
+shadow_blur = 2.0
 
 [node name="Light3" type="CSGBox3D" parent="OfficeFurniture/CeilingLights"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 4.92, -3)
 size = Vector3(2.2, 0.08, 1.1)
 material = SubResource("light_panel")
 
+[node name="Glow3" type="OmniLight3D" parent="OfficeFurniture/CeilingLights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 4.85, -3)
+light_color = Color(1, 0.97, 0.91, 1)
+light_energy = 1.25
+omni_range = 7.5
+omni_attenuation = 1.2
+shadow_enabled = true
+shadow_blur = 2.0
+
 [node name="Light4" type="CSGBox3D" parent="OfficeFurniture/CeilingLights"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 4.92, 3)
 size = Vector3(2.2, 0.08, 1.1)
 material = SubResource("light_panel")
+
+[node name="Glow4" type="OmniLight3D" parent="OfficeFurniture/CeilingLights"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 4.85, 3)
+light_color = Color(1, 0.97, 0.91, 1)
+light_energy = 1.25
+omni_range = 7.5
+omni_attenuation = 1.2
+shadow_enabled = true
+shadow_blur = 2.0
+
+[node name="Baseboards" type="Node3D" parent="OfficeFurniture"]
+
+[node name="BB_North" type="CSGBox3D" parent="OfficeFurniture/Baseboards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.075, -7.42)
+use_collision = true
+size = Vector3(20, 0.15, 0.06)
+material = SubResource("frame_white")
+
+[node name="BB_South" type="CSGBox3D" parent="OfficeFurniture/Baseboards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.075, 7.42)
+use_collision = true
+size = Vector3(20, 0.15, 0.06)
+material = SubResource("frame_white")
+
+[node name="BB_East" type="CSGBox3D" parent="OfficeFurniture/Baseboards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.42, 0.075, 0)
+use_collision = true
+size = Vector3(0.06, 0.15, 15)
+material = SubResource("frame_white")
+
+[node name="BB_West" type="CSGBox3D" parent="OfficeFurniture/Baseboards"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.42, 0.075, 0)
+use_collision = true
+size = Vector3(0.06, 0.15, 15)
+material = SubResource("frame_white")
+
+[node name="CrownMolding" type="Node3D" parent="OfficeFurniture"]
+
+[node name="CM_North" type="CSGBox3D" parent="OfficeFurniture/CrownMolding"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.94, -7.42)
+size = Vector3(20, 0.1, 0.06)
+material = SubResource("frame_white")
+
+[node name="CM_South" type="CSGBox3D" parent="OfficeFurniture/CrownMolding"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.94, 7.42)
+size = Vector3(20, 0.1, 0.06)
+material = SubResource("frame_white")
+
+[node name="CM_East" type="CSGBox3D" parent="OfficeFurniture/CrownMolding"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.42, 4.94, 0)
+size = Vector3(0.06, 0.1, 15)
+material = SubResource("frame_white")
+
+[node name="CM_West" type="CSGBox3D" parent="OfficeFurniture/CrownMolding"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.42, 4.94, 0)
+size = Vector3(0.06, 0.1, 15)
+material = SubResource("frame_white")
 
 [node name="WallDecor" type="Node3D" parent="OfficeFurniture"]
 
