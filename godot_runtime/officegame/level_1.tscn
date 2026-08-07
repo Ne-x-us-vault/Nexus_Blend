@@ -1,7 +1,8 @@
-[gd_scene load_steps=44 format=3 uid="uid://dto7g3317i8bs"]
+[gd_scene load_steps=45 format=3 uid="uid://dto7g3317i8bs"]
 
 [ext_resource type="Script" uid="uid://dj7khnewbdf4v" path="res://body.gd" id="1_3hls8"]
 [ext_resource type="Script" uid="uid://dq4fpygwbsyak" path="res://level_1.gd" id="1_hbghi"]
+[ext_resource type="PackedScene" path="res://exterior.tscn" id="2_ext"]
 
 [sub_resource type="ProceduralSkyMaterial" id="sky_mat"]
 sky_top_color = Color(0.28, 0.48, 0.8, 1)
@@ -215,8 +216,8 @@ metallic = 0
 
 [sub_resource type="StandardMaterial3D" id="glass_blue"]
 transparency = 1
-albedo_color = Color(0.7, 0.85, 0.95, 0.55)
-roughness = 0.1
+albedo_color = Color(0.72, 0.85, 0.96, 0.18)
+roughness = 0.05
 metallic = 0
 
 [sub_resource type="StandardMaterial3D" id="frame_white"]
@@ -278,28 +279,106 @@ use_collision = true
 size = Vector3(20, 0.2, 15)
 material = SubResource("floor_material")
 
-[node name="Wall_North" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, -7.5)
+[node name="Wall_North" type="Node3D" parent="."]
+
+[node name="SegL" type="CSGBox3D" parent="Wall_North"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.3, 1.7, -7.5)
 use_collision = true
-size = Vector3(20, 5, 0.2)
+size = Vector3(5.4, 3.4, 0.2)
 material = SubResource("StandardMaterial3D_hn12h")
 
-[node name="Wall_South" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5, 7.5)
+[node name="SegMid" type="CSGBox3D" parent="Wall_North"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, -7.5)
 use_collision = true
-size = Vector3(20, 5, 0.2)
+size = Vector3(4.8, 3.4, 0.2)
 material = SubResource("StandardMaterial3D_hn12h")
 
-[node name="Wall_East" type="CSGBox3D" parent="."]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, 10, 2.5, 0)
+[node name="SegR" type="CSGBox3D" parent="Wall_North"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 7.3, 1.7, -7.5)
 use_collision = true
-size = Vector3(15, 5, 0.2)
+size = Vector3(5.4, 3.4, 0.2)
+material = SubResource("StandardMaterial3D_hn12h")
+
+[node name="SegUnder1" type="CSGBox3D" parent="Wall_North"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 0.47, -7.5)
+use_collision = true
+size = Vector3(2.2, 0.94, 0.2)
+material = SubResource("StandardMaterial3D_hn12h")
+
+[node name="SegAbove1" type="CSGBox3D" parent="Wall_North"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 3.22, -7.5)
+use_collision = true
+size = Vector3(2.2, 0.36, 0.2)
+material = SubResource("StandardMaterial3D_hn12h")
+
+[node name="SegUnder2" type="CSGBox3D" parent="Wall_North"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0.47, -7.5)
+use_collision = true
+size = Vector3(2.2, 0.94, 0.2)
+material = SubResource("StandardMaterial3D_hn12h")
+
+[node name="SegAbove2" type="CSGBox3D" parent="Wall_North"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 3.22, -7.5)
+use_collision = true
+size = Vector3(2.2, 0.36, 0.2)
+material = SubResource("StandardMaterial3D_hn12h")
+
+[node name="Wall_South" type="Node3D" parent="."]
+
+[node name="SegL" type="CSGBox3D" parent="Wall_South"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5.35, 1.7, 7.5)
+use_collision = true
+size = Vector3(9.3, 3.4, 0.2)
+material = SubResource("StandardMaterial3D_hn12h")
+
+[node name="SegR" type="CSGBox3D" parent="Wall_South"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.35, 1.7, 7.5)
+use_collision = true
+size = Vector3(9.3, 3.4, 0.2)
+material = SubResource("StandardMaterial3D_hn12h")
+
+[node name="SegDoorBase" type="CSGBox3D" parent="Wall_South"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1, 7.5)
+use_collision = true
+size = Vector3(1.4, 2.2, 0.2)
+material = SubResource("StandardMaterial3D_hn12h")
+
+[node name="SegDoorTop" type="CSGBox3D" parent="Wall_South"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 7.5)
+use_collision = true
+size = Vector3(1.4, 0.4, 0.2)
+material = SubResource("StandardMaterial3D_hn12h")
+
+[node name="Wall_East" type="Node3D" parent="."]
+
+[node name="SegNorth" type="CSGBox3D" parent="Wall_East"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.7, -2.55)
+use_collision = true
+size = Vector3(0.2, 3.4, 9.9)
+material = SubResource("StandardMaterial3D_hn12h")
+
+[node name="SegSouth" type="CSGBox3D" parent="Wall_East"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 1.7, 6.05)
+use_collision = true
+size = Vector3(0.2, 3.4, 2.9)
+material = SubResource("StandardMaterial3D_hn12h")
+
+[node name="SegUnder" type="CSGBox3D" parent="Wall_East"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.47, 3.5)
+use_collision = true
+size = Vector3(0.2, 0.94, 2.2)
+material = SubResource("StandardMaterial3D_hn12h")
+
+[node name="SegAbove" type="CSGBox3D" parent="Wall_East"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 3.22, 3.5)
+use_collision = true
+size = Vector3(0.2, 0.36, 2.2)
 material = SubResource("StandardMaterial3D_hn12h")
 
 [node name="Wall_West" type="CSGBox3D" parent="."]
-transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -10, 2.5, 0)
+transform = Transform3D(-4.37114e-08, 0, 1, 0, 1, 0, -1, 0, -4.37114e-08, -10, 1.7, 0)
 use_collision = true
-size = Vector3(15, 5, 0.2)
+size = Vector3(15, 3.4, 0.2)
 material = SubResource("StandardMaterial3D_hn12h")
 
 [node name="Player" type="Node3D" parent="."]
@@ -325,7 +404,7 @@ autostart = true
 [node name="ImportedModel" type="Node3D" parent="."]
 
 [node name="Ceiling" type="CSGBox3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 5, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.4, 0)
 size = Vector3(20, 0.2, 15)
 material = SubResource("StandardMaterial3D_ihfcg")
 
@@ -1337,87 +1416,133 @@ material = SubResource("leaf_green")
 [node name="Window1" type="Node3D" parent="OfficeFurniture/Windows"]
 
 [node name="Glass" type="CSGBox3D" parent="OfficeFurniture/Windows/Window1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 2.5, -7.39)
-size = Vector3(2, 1.3, 0.04)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 2, -7.5)
+use_collision = true
+size = Vector3(2.2, 2, 0.06)
 material = SubResource("glass_blue")
 
 [node name="FrameTop" type="CSGBox3D" parent="OfficeFurniture/Windows/Window1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 3.31, -7.39)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 3.04, -7.5)
 use_collision = true
-size = Vector3(2.2, 0.12, 0.12)
+size = Vector3(2.42, 0.12, 0.14)
 material = SubResource("frame_white")
 
 [node name="FrameBot" type="CSGBox3D" parent="OfficeFurniture/Windows/Window1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 1.69, -7.39)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 0.94, -7.5)
 use_collision = true
-size = Vector3(2.2, 0.12, 0.12)
+size = Vector3(2.42, 0.12, 0.14)
 material = SubResource("frame_white")
 
 [node name="FrameL" type="CSGBox3D" parent="OfficeFurniture/Windows/Window1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.55, 2.5, -7.39)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.61, 2, -7.5)
 use_collision = true
-size = Vector3(0.1, 1.5, 0.12)
+size = Vector3(0.12, 2.2, 0.14)
 material = SubResource("frame_white")
 
 [node name="FrameR" type="CSGBox3D" parent="OfficeFurniture/Windows/Window1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.45, 2.5, -7.39)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.39, 2, -7.5)
 use_collision = true
-size = Vector3(0.1, 1.5, 0.12)
+size = Vector3(0.12, 2.2, 0.14)
 material = SubResource("frame_white")
 
 [node name="Mullion" type="CSGBox3D" parent="OfficeFurniture/Windows/Window1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 2.5, -7.39)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 2, -7.5)
 use_collision = true
-size = Vector3(0.06, 1.34, 0.14)
+size = Vector3(0.06, 2.2, 0.16)
 material = SubResource("frame_white")
 
 [node name="Sill" type="CSGBox3D" parent="OfficeFurniture/Windows/Window1"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 1.62, -7.35)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 0.86, -7.42)
 use_collision = true
-size = Vector3(2.3, 0.08, 0.2)
+size = Vector3(2.5, 0.1, 0.24)
 material = SubResource("frame_white")
 
 [node name="Window2" type="Node3D" parent="OfficeFurniture/Windows"]
 
 [node name="Glass" type="CSGBox3D" parent="OfficeFurniture/Windows/Window2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 2.5, -7.39)
-size = Vector3(2, 1.3, 0.04)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 2, -7.5)
+use_collision = true
+size = Vector3(2.2, 2, 0.06)
 material = SubResource("glass_blue")
 
 [node name="FrameTop" type="CSGBox3D" parent="OfficeFurniture/Windows/Window2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 3.31, -7.39)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 3.04, -7.5)
 use_collision = true
-size = Vector3(2.2, 0.12, 0.12)
+size = Vector3(2.42, 0.12, 0.14)
 material = SubResource("frame_white")
 
 [node name="FrameBot" type="CSGBox3D" parent="OfficeFurniture/Windows/Window2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 1.69, -7.39)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0.94, -7.5)
 use_collision = true
-size = Vector3(2.2, 0.12, 0.12)
+size = Vector3(2.42, 0.12, 0.14)
 material = SubResource("frame_white")
 
 [node name="FrameL" type="CSGBox3D" parent="OfficeFurniture/Windows/Window2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.45, 2.5, -7.39)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.39, 2, -7.5)
 use_collision = true
-size = Vector3(0.1, 1.5, 0.12)
+size = Vector3(0.12, 2.2, 0.14)
 material = SubResource("frame_white")
 
 [node name="FrameR" type="CSGBox3D" parent="OfficeFurniture/Windows/Window2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.55, 2.5, -7.39)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.61, 2, -7.5)
 use_collision = true
-size = Vector3(0.1, 1.5, 0.12)
+size = Vector3(0.12, 2.2, 0.14)
 material = SubResource("frame_white")
 
 [node name="Mullion" type="CSGBox3D" parent="OfficeFurniture/Windows/Window2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 2.5, -7.39)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 2, -7.5)
 use_collision = true
-size = Vector3(0.06, 1.34, 0.14)
+size = Vector3(0.06, 2.2, 0.16)
 material = SubResource("frame_white")
 
 [node name="Sill" type="CSGBox3D" parent="OfficeFurniture/Windows/Window2"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 1.62, -7.35)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 0.86, -7.42)
 use_collision = true
-size = Vector3(2.3, 0.08, 0.2)
+size = Vector3(2.5, 0.1, 0.24)
+material = SubResource("frame_white")
+
+[node name="Window3" type="Node3D" parent="OfficeFurniture/Windows"]
+
+[node name="Glass" type="CSGBox3D" parent="OfficeFurniture/Windows/Window3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 2, 3.5)
+use_collision = true
+size = Vector3(0.06, 2, 2.2)
+material = SubResource("glass_blue")
+
+[node name="FrameTop" type="CSGBox3D" parent="OfficeFurniture/Windows/Window3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 3.04, 3.5)
+use_collision = true
+size = Vector3(0.14, 0.12, 2.42)
+material = SubResource("frame_white")
+
+[node name="FrameBot" type="CSGBox3D" parent="OfficeFurniture/Windows/Window3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 0.94, 3.5)
+use_collision = true
+size = Vector3(0.14, 0.12, 2.42)
+material = SubResource("frame_white")
+
+[node name="FrameL" type="CSGBox3D" parent="OfficeFurniture/Windows/Window3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 2, 2.39)
+use_collision = true
+size = Vector3(0.14, 2.2, 0.12)
+material = SubResource("frame_white")
+
+[node name="FrameR" type="CSGBox3D" parent="OfficeFurniture/Windows/Window3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 2, 4.61)
+use_collision = true
+size = Vector3(0.14, 2.2, 0.12)
+material = SubResource("frame_white")
+
+[node name="Mullion" type="CSGBox3D" parent="OfficeFurniture/Windows/Window3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10, 2, 3.5)
+use_collision = true
+size = Vector3(0.16, 2.2, 0.06)
+material = SubResource("frame_white")
+
+[node name="Sill" type="CSGBox3D" parent="OfficeFurniture/Windows/Window3"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.9, 0.86, 3.5)
+use_collision = true
+size = Vector3(0.24, 0.1, 2.5)
 material = SubResource("frame_white")
 
 [node name="DoorSouth" type="Node3D" parent="OfficeFurniture"]
@@ -1443,13 +1568,36 @@ material = SubResource("frame_white")
 [node name="Panel" type="CSGBox3D" parent="OfficeFurniture/DoorSouth"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.05, 7.45)
 use_collision = true
-size = Vector3(1, 2.1, 0.06)
+size = Vector3(1.06, 2.1, 0.08)
 material = SubResource("door_wood")
 
 [node name="Knob" type="CSGBox3D" parent="OfficeFurniture/DoorSouth"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.44, 1, 7.48)
 size = Vector3(0.05, 0.05, 0.08)
 material = SubResource("handle_dark")
+
+[node name="TransomGlass" type="CSGBox3D" parent="OfficeFurniture/DoorSouth"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, 7.44)
+size = Vector3(1.28, 0.8, 0.06)
+material = SubResource("glass_blue")
+
+[node name="TransTop" type="CSGBox3D" parent="OfficeFurniture/DoorSouth"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.06, 7.45)
+use_collision = true
+size = Vector3(1.44, 0.12, 0.18)
+material = SubResource("frame_white")
+
+[node name="TransL" type="CSGBox3D" parent="OfficeFurniture/DoorSouth"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.64, 2.6, 7.45)
+use_collision = true
+size = Vector3(0.12, 0.8, 0.18)
+material = SubResource("frame_white")
+
+[node name="TransR" type="CSGBox3D" parent="OfficeFurniture/DoorSouth"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.64, 2.6, 7.45)
+use_collision = true
+size = Vector3(0.12, 0.8, 0.18)
+material = SubResource("frame_white")
 
 [node name="Mat" type="CSGBox3D" parent="OfficeFurniture/DoorSouth"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.015, 6.6)
@@ -1459,12 +1607,12 @@ material = SubResource("doormat")
 [node name="CeilingLights" type="Node3D" parent="OfficeFurniture"]
 
 [node name="Light1" type="CSGBox3D" parent="OfficeFurniture/CeilingLights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 4.92, -3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 3.32, -3)
 size = Vector3(2.2, 0.08, 1.1)
 material = SubResource("light_panel")
 
 [node name="Glow1" type="OmniLight3D" parent="OfficeFurniture/CeilingLights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 4.85, -3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 3.25, -3)
 light_color = Color(1, 0.97, 0.91, 1)
 light_energy = 2.2
 light_angular_distance = 0.0
@@ -1474,12 +1622,12 @@ shadow_enabled = true
 shadow_blur = 2.0
 
 [node name="Light2" type="CSGBox3D" parent="OfficeFurniture/CeilingLights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 4.92, 3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 3.32, 3)
 size = Vector3(2.2, 0.08, 1.1)
 material = SubResource("light_panel")
 
 [node name="Glow2" type="OmniLight3D" parent="OfficeFurniture/CeilingLights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 4.85, 3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 3.25, 3)
 light_color = Color(1, 0.97, 0.91, 1)
 light_energy = 1.25
 omni_range = 7.5
@@ -1488,12 +1636,12 @@ shadow_enabled = true
 shadow_blur = 2.0
 
 [node name="Light3" type="CSGBox3D" parent="OfficeFurniture/CeilingLights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 4.92, -3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 3.32, -3)
 size = Vector3(2.2, 0.08, 1.1)
 material = SubResource("light_panel")
 
 [node name="Glow3" type="OmniLight3D" parent="OfficeFurniture/CeilingLights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 4.85, -3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 3.25, -3)
 light_color = Color(1, 0.97, 0.91, 1)
 light_energy = 1.25
 omni_range = 7.5
@@ -1502,12 +1650,12 @@ shadow_enabled = true
 shadow_blur = 2.0
 
 [node name="Light4" type="CSGBox3D" parent="OfficeFurniture/CeilingLights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 4.92, 3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 3.32, 3)
 size = Vector3(2.2, 0.08, 1.1)
 material = SubResource("light_panel")
 
 [node name="Glow4" type="OmniLight3D" parent="OfficeFurniture/CeilingLights"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 4.85, 3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 3.25, 3)
 light_color = Color(1, 0.97, 0.91, 1)
 light_energy = 1.25
 omni_range = 7.5
@@ -1544,57 +1692,59 @@ material = SubResource("frame_white")
 [node name="CrownMolding" type="Node3D" parent="OfficeFurniture"]
 
 [node name="CM_North" type="CSGBox3D" parent="OfficeFurniture/CrownMolding"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.94, -7.42)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.32, -7.42)
 size = Vector3(20, 0.1, 0.06)
 material = SubResource("frame_white")
 
 [node name="CM_South" type="CSGBox3D" parent="OfficeFurniture/CrownMolding"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 4.94, 7.42)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.32, 7.42)
 size = Vector3(20, 0.1, 0.06)
 material = SubResource("frame_white")
 
 [node name="CM_East" type="CSGBox3D" parent="OfficeFurniture/CrownMolding"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.42, 4.94, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.42, 3.32, 0)
 size = Vector3(0.06, 0.1, 15)
 material = SubResource("frame_white")
 
 [node name="CM_West" type="CSGBox3D" parent="OfficeFurniture/CrownMolding"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.42, 4.94, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.42, 3.32, 0)
 size = Vector3(0.06, 0.1, 15)
 material = SubResource("frame_white")
 
 [node name="WallDecor" type="Node3D" parent="OfficeFurniture"]
 
 [node name="Whiteboard" type="CSGBox3D" parent="OfficeFurniture/WallDecor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.6, -7.4)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, -7.4)
 use_collision = true
 size = Vector3(1.8, 1.1, 0.05)
 material = SubResource("whiteboard_m")
 
 [node name="Tray" type="CSGBox3D" parent="OfficeFurniture/WallDecor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.02, -7.38)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.62, -7.38)
 use_collision = true
 size = Vector3(1.8, 0.06, 0.1)
 material = SubResource("frame_black")
 
 [node name="Marker1" type="CSGBox3D" parent="OfficeFurniture/WallDecor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 2.05, -7.31)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 1.65, -7.31)
 size = Vector3(0.16, 0.05, 0.05)
 material = SubResource("book_red")
 
 [node name="Marker2" type="CSGBox3D" parent="OfficeFurniture/WallDecor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 2.05, -7.31)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.3, 1.65, -7.31)
 size = Vector3(0.16, 0.05, 0.05)
 material = SubResource("book_blue")
 
 [node name="PosterWest" type="CSGBox3D" parent="OfficeFurniture/WallDecor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.88, 3.2, -4.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -9.88, 2.6, -4.5)
 use_collision = true
 size = Vector3(0.06, 1.2, 0.9)
 material = SubResource("poster_1")
 
 [node name="PosterEast" type="CSGBox3D" parent="OfficeFurniture/WallDecor"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.88, 3.2, 3.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.88, 2.6, 5.5)
 use_collision = true
 size = Vector3(0.06, 1.2, 0.9)
 material = SubResource("poster_2")
+
+[node name="Exterior" parent="." instance=ExtResource("2_ext")]

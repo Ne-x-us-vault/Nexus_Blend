@@ -1,0 +1,155 @@
+[gd_scene load_steps=7 format=3 uid="uid://citysc4pe0001"]
+
+[sub_resource type="Shader" id="city_facade"]
+code = "shader_type spatial;
+render_mode diffuse_burley, specular_schlick_ggx;
+
+uniform vec3 frame_color : source_color = vec3(0.14, 0.17, 0.21);
+uniform vec3 glass_color : source_color = vec3(0.42, 0.57, 0.72);
+uniform vec3 lit_color : source_color = vec3(1.0, 0.93, 0.72);
+uniform float columns : hint_range(2.0, 40.0) = 7.0;
+uniform float rows : hint_range(2.0, 60.0) = 14.0;
+uniform float glass_ratio : hint_range(0.1, 0.95) = 0.78;
+uniform float lit_chance : hint_range(0.0, 1.0) = 0.35;
+uniform float lit_strength : hint_range(0.0, 8.0) = 3.0;
+
+void fragment() {
+	vec2 cell = floor(UV * vec2(columns, rows));
+	vec2 f = fract(UV * vec2(columns, rows)) - vec2(0.5);
+	float is_window = step(max(abs(f.x), abs(f.y)), glass_ratio * 0.5);
+	float rnd = fract(sin(dot(cell, vec2(127.1, 311.7))) * 43758.5453);
+	float lit = step(1.0 - lit_chance, rnd);
+	vec3 window_col = mix(glass_color, lit_color, lit * 0.75);
+	ALBEDO = mix(frame_color, window_col, is_window);
+	EMISSION = is_window * lit * lit_color * lit_strength;
+	ROUGHNESS = mix(0.6, 0.15, is_window);
+	METALLIC = 0.0;
+}"
+
+[sub_resource type="ShaderMaterial" id="facade_a"]
+shader = SubResource("city_facade")
+shader_parameter/columns = 7.0
+shader_parameter/rows = 15.0
+shader_parameter/glass_color = Color(0.45, 0.6, 0.75, 1)
+shader_parameter/lit_strength = 3.0
+
+[sub_resource type="ShaderMaterial" id="facade_b"]
+shader = SubResource("city_facade")
+shader_parameter/columns = 6.0
+shader_parameter/rows = 12.0
+shader_parameter/glass_color = Color(0.4, 0.52, 0.68, 1)
+shader_parameter/lit_strength = 2.5
+
+[sub_resource type="ShaderMaterial" id="facade_c"]
+shader = SubResource("city_facade")
+shader_parameter/columns = 8.0
+shader_parameter/rows = 20.0
+shader_parameter/glass_color = Color(0.5, 0.62, 0.72, 1)
+shader_parameter/lit_strength = 3.5
+
+[sub_resource type="StandardMaterial3D" id="ground_m"]
+albedo_color = Color(0.27, 0.29, 0.33, 1)
+roughness = 0.95
+metallic = 0
+
+[sub_resource type="StandardMaterial3D" id="road_m"]
+albedo_color = Color(0.11, 0.12, 0.14, 1)
+roughness = 1
+metallic = 0
+
+[node name="Exterior" type="Node3D"]
+
+[node name="Ground" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.25, 0)
+size = Vector3(160, 0.4, 160)
+material = SubResource("ground_m")
+
+[node name="Road_North" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, -11)
+size = Vector3(140, 0.06, 5)
+material = SubResource("road_m")
+
+[node name="Road_South" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.05, 15)
+size = Vector3(140, 0.06, 5)
+material = SubResource("road_m")
+
+[node name="Road_East" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 14, -0.05, 0)
+size = Vector3(5, 0.06, 70)
+material = SubResource("road_m")
+
+[node name="Road_West" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15, -0.05, 0)
+size = Vector3(5, 0.06, 70)
+material = SubResource("road_m")
+
+[node name="BldgN1" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.5, 9, -18)
+size = Vector3(7, 18, 8)
+material = SubResource("facade_a")
+
+[node name="BldgN2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.5, 11, -20)
+size = Vector3(7, 22, 8)
+material = SubResource("facade_b")
+
+[node name="BldgN3" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 13, -28)
+size = Vector3(8, 26, 9)
+material = SubResource("facade_c")
+
+[node name="BldgN4" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -13, 7, -22)
+size = Vector3(6, 14, 6)
+material = SubResource("facade_b")
+
+[node name="BldgN5" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13, 7, -24)
+size = Vector3(6, 14, 6)
+material = SubResource("facade_a")
+
+[node name="BldgN6" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -21, 10, -30)
+size = Vector3(7, 20, 7)
+material = SubResource("facade_a")
+
+[node name="BldgN7" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 9, -32)
+size = Vector3(6, 18, 6)
+material = SubResource("facade_b")
+
+[node name="BldgE1" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 8, 3.5)
+size = Vector3(6, 16, 6)
+material = SubResource("facade_a")
+
+[node name="BldgE2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 27, 10, -6)
+size = Vector3(6, 20, 6)
+material = SubResource("facade_b")
+
+[node name="BldgE3" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 6, 14)
+size = Vector3(5, 12, 5)
+material = SubResource("facade_c")
+
+[node name="BldgS1" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 9, 24)
+size = Vector3(8, 18, 8)
+material = SubResource("facade_a")
+
+[node name="BldgS2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 7, 30)
+size = Vector3(6, 14, 6)
+material = SubResource("facade_b")
+
+[node name="BldgW1" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -26, 8, 4)
+size = Vector3(6, 16, 6)
+material = SubResource("facade_c")
+
+[node name="BldgW2" type="CSGBox3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -34, 9, -6)
+size = Vector3(7, 18, 7)
+material = SubResource("facade_a")
