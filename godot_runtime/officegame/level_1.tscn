@@ -1,4 +1,4 @@
-[gd_scene load_steps=45 format=3 uid="uid://dto7g3317i8bs"]
+[gd_scene load_steps=48 format=3 uid="uid://dto7g3317i8bs"]
 
 [ext_resource type="Script" uid="uid://dj7khnewbdf4v" path="res://body.gd" id="1_3hls8"]
 [ext_resource type="Script" uid="uid://dq4fpygwbsyak" path="res://level_1.gd" id="1_hbghi"]
@@ -20,7 +20,7 @@ background_mode = 2
 sky = SubResource("Sky_ilcil")
 ambient_light_source = 3
 ambient_light_sky_contribution = 0.8
-ambient_light_energy = 0.5
+ambient_light_energy = 0.2
 tonemap_mode = 2
 tonemap_exposure = 0.9
 tonemap_white = 1.0
@@ -74,6 +74,64 @@ void fragment() {
 shader = SubResource("floor_shader")
 shader_parameter/grout_width = 0.025
 
+[sub_resource type="Shader" id="wood_shader"]
+code = "shader_type spatial;
+render_mode diffuse_burley, specular_schlick_ggx;
+
+uniform vec3 base_color : source_color = vec3(0.78, 0.58, 0.36);
+uniform float roughness_base : hint_range(0.0, 1.0) = 0.55;
+
+float hash(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float noise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+		mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+
+void fragment() {
+	vec2 uv = UV * vec2(2.0, 8.0);
+	float streaks = sin(uv.x * 5.0 + noise(vec2(uv.y * 2.0, 0.0)) * 2.0) * 0.5 + 0.5;
+	float grain = noise(vec2(uv.y * 6.0, uv.x * 1.5));
+	float shade = mix(0.9, 1.05, grain) * mix(0.93, 1.0, streaks);
+	ALBEDO = base_color * shade;
+	ROUGHNESS = clamp(roughness_base + grain * 0.18, 0.0, 1.0);
+	METALLIC = 0.0;
+}"
+
+[sub_resource type="Shader" id="fabric_shader"]
+code = "shader_type spatial;
+render_mode diffuse_burley, specular_schlick_ggx;
+
+uniform vec3 base_color : source_color = vec3(0.2, 0.45, 0.5);
+uniform float roughness_base : hint_range(0.0, 1.0) = 0.9;
+uniform float detail_scale : hint_range(1.0, 200.0) = 60.0;
+uniform float variation : hint_range(0.0, 0.5) = 0.08;
+
+float hash(vec2 p) {
+	return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453);
+}
+
+float noise(vec2 p) {
+	vec2 i = floor(p);
+	vec2 f = fract(p);
+	f = f * f * (3.0 - 2.0 * f);
+	return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+		mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+
+void fragment() {
+	float n = noise(UV * detail_scale);
+	float shade = 1.0 + (n - 0.5) * variation * 2.0;
+	ALBEDO = base_color * shade;
+	ROUGHNESS = clamp(roughness_base + (n - 0.5) * 0.2, 0.0, 1.0);
+	METALLIC = 0.0;
+}"
+
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hbghi"]
 albedo_color = Color(0.541176, 0.419608, 0.309804, 1)
 roughness = 0.65
@@ -89,25 +147,25 @@ height = 1.8
 albedo_color = Color(0.972549, 0.972549, 0.972549, 1)
 roughness = 0.9
 
-[sub_resource type="StandardMaterial3D" id="wood_desk"]
-albedo_color = Color(0.78, 0.58, 0.36, 1)
-roughness = 0.6
-metallic = 0
+[sub_resource type="ShaderMaterial" id="wood_desk"]
+shader = SubResource("wood_shader")
+shader_parameter/base_color = Color(0.78, 0.58, 0.36, 1)
+shader_parameter/roughness_base = 0.55
 
-[sub_resource type="StandardMaterial3D" id="wood_dark"]
-albedo_color = Color(0.35, 0.27, 0.2, 1)
-roughness = 0.7
-metallic = 0
+[sub_resource type="ShaderMaterial" id="wood_dark"]
+shader = SubResource("wood_shader")
+shader_parameter/base_color = Color(0.35, 0.27, 0.2, 1)
+shader_parameter/roughness_base = 0.65
 
-[sub_resource type="StandardMaterial3D" id="table_wood"]
-albedo_color = Color(0.55, 0.42, 0.3, 1)
-roughness = 0.6
-metallic = 0
+[sub_resource type="ShaderMaterial" id="table_wood"]
+shader = SubResource("wood_shader")
+shader_parameter/base_color = Color(0.55, 0.42, 0.3, 1)
+shader_parameter/roughness_base = 0.55
 
-[sub_resource type="StandardMaterial3D" id="shelf_wood"]
-albedo_color = Color(0.6, 0.45, 0.28, 1)
-roughness = 0.7
-metallic = 0
+[sub_resource type="ShaderMaterial" id="shelf_wood"]
+shader = SubResource("wood_shader")
+shader_parameter/base_color = Color(0.6, 0.45, 0.28, 1)
+shader_parameter/roughness_base = 0.65
 
 [sub_resource type="StandardMaterial3D" id="metal_gray"]
 albedo_color = Color(0.45, 0.45, 0.48, 1)
@@ -129,10 +187,10 @@ albedo_color = Color(0.55, 0.55, 0.58, 1)
 roughness = 0.5
 metallic = 0
 
-[sub_resource type="StandardMaterial3D" id="chair_blue"]
-albedo_color = Color(0.2, 0.35, 0.55, 1)
-roughness = 0.8
-metallic = 0
+[sub_resource type="ShaderMaterial" id="chair_blue"]
+shader = SubResource("fabric_shader")
+shader_parameter/base_color = Color(0.2, 0.35, 0.55, 1)
+shader_parameter/roughness_base = 0.8
 
 [sub_resource type="StandardMaterial3D" id="book_red"]
 albedo_color = Color(0.75, 0.2, 0.18, 1)
@@ -199,36 +257,36 @@ albedo_color = Color(0.15, 0.15, 0.17, 1)
 roughness = 0.4
 metallic = 0.8
 
-[sub_resource type="StandardMaterial3D" id="sofa_teal"]
-albedo_color = Color(0.2, 0.45, 0.5, 1)
-roughness = 0.9
-metallic = 0
+[sub_resource type="ShaderMaterial" id="sofa_teal"]
+shader = SubResource("fabric_shader")
+shader_parameter/base_color = Color(0.2, 0.45, 0.5, 1)
+shader_parameter/roughness_base = 0.9
 
-[sub_resource type="StandardMaterial3D" id="sofa_cushion"]
-albedo_color = Color(0.25, 0.5, 0.55, 1)
-roughness = 0.9
-metallic = 0
+[sub_resource type="ShaderMaterial" id="sofa_cushion"]
+shader = SubResource("fabric_shader")
+shader_parameter/base_color = Color(0.25, 0.5, 0.55, 1)
+shader_parameter/roughness_base = 0.9
 
-[sub_resource type="StandardMaterial3D" id="rug_red"]
-albedo_color = Color(0.65, 0.25, 0.2, 1)
-roughness = 1
-metallic = 0
+[sub_resource type="ShaderMaterial" id="rug_red"]
+shader = SubResource("fabric_shader")
+shader_parameter/base_color = Color(0.65, 0.25, 0.2, 1)
+shader_parameter/roughness_base = 1.0
 
 [sub_resource type="StandardMaterial3D" id="glass_blue"]
 transparency = 1
-albedo_color = Color(0.72, 0.85, 0.96, 0.18)
+albedo_color = Color(0.72, 0.85, 0.96, 0.22)
 roughness = 0.05
-metallic = 0
+metallic = 0.1
 
 [sub_resource type="StandardMaterial3D" id="frame_white"]
 albedo_color = Color(0.9, 0.9, 0.88, 1)
 roughness = 0.7
 metallic = 0
 
-[sub_resource type="StandardMaterial3D" id="door_wood"]
-albedo_color = Color(0.55, 0.38, 0.22, 1)
-roughness = 0.7
-metallic = 0
+[sub_resource type="ShaderMaterial" id="door_wood"]
+shader = SubResource("wood_shader")
+shader_parameter/base_color = Color(0.55, 0.38, 0.22, 1)
+shader_parameter/roughness_base = 0.65
 
 [sub_resource type="StandardMaterial3D" id="doormat"]
 albedo_color = Color(0.4, 0.35, 0.3, 1)
@@ -269,9 +327,17 @@ transform = Transform3D(0.90631, -0.29884, 0.29884, 0, 0.70711, 0.70711, -0.4226
 light_color = Color(1, 0.965, 0.905, 1)
 light_energy = 1.1
 shadow_enabled = true
-shadow_blur = 2.0
+shadow_blur = 1.0
 directional_shadow_max_distance = 40.0
 directional_shadow_fade_start = 0.6
+
+[node name="ReflectionProbeRoom" type="ReflectionProbe" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+size = Vector3(20, 3.4, 15)
+
+[node name="ReflectionProbeExterior" type="ReflectionProbe" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 9, -24)
+size = Vector3(60, 22, 40)
 
 [node name="floor" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
@@ -1619,7 +1685,7 @@ light_angular_distance = 0.0
 omni_range = 9.0
 omni_attenuation = 1.2
 shadow_enabled = true
-shadow_blur = 2.0
+shadow_blur = 1.0
 
 [node name="Light2" type="CSGBox3D" parent="OfficeFurniture/CeilingLights"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 3.32, 3)
@@ -1632,8 +1698,7 @@ light_color = Color(1, 0.97, 0.91, 1)
 light_energy = 1.25
 omni_range = 7.5
 omni_attenuation = 1.2
-shadow_enabled = true
-shadow_blur = 2.0
+shadow_enabled = false
 
 [node name="Light3" type="CSGBox3D" parent="OfficeFurniture/CeilingLights"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 3.32, -3)
@@ -1646,8 +1711,7 @@ light_color = Color(1, 0.97, 0.91, 1)
 light_energy = 1.25
 omni_range = 7.5
 omni_attenuation = 1.2
-shadow_enabled = true
-shadow_blur = 2.0
+shadow_enabled = false
 
 [node name="Light4" type="CSGBox3D" parent="OfficeFurniture/CeilingLights"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 3.32, 3)
@@ -1660,8 +1724,7 @@ light_color = Color(1, 0.97, 0.91, 1)
 light_energy = 1.25
 omni_range = 7.5
 omni_attenuation = 1.2
-shadow_enabled = true
-shadow_blur = 2.0
+shadow_enabled = false
 
 [node name="Baseboards" type="Node3D" parent="OfficeFurniture"]
 
